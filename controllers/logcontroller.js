@@ -25,14 +25,34 @@ router.post('/create', validateSession, async(req, res) =>{
     }
 });
 
-//find all logs from given user (requires "id": body entry; could be done with username but would require field in log that was not specified)
-router.get('/', async(req, res)=>{
+router.get('/all', async(req, res) =>{
+    try {
+        const allLogs = await LogModel.findAll();
+        res.status(200).json(allLogs)
+    } catch (error) {
+        res.status(500).json({ error: err})
+    }
+})
+
+// find all logs from given user 
+// router.get('/user/:id', validateSession, async(req, res)=>{
+//     try{
+//         const id = req.params.id;
+//         const userLogs = await LogModel.findAll({
+//             where: {owner_id: id}
+//         });
+//         res.status(200).json(userLogs)
+//     } catch (err) {
+//         res.status(500).json({ error: err})
+//     }
+// })
+router.get('/mine', validateSession, async(req, res)=>{
     try{
-        const { id } = req.body;
-        const allLogs = await LogModel.findAll({
+        const id = req.user.id;
+        const userLogs = await LogModel.findAll({
             where: {owner_id: id}
         });
-        res.status(200).json(allLogs)
+        res.status(200).json(userLogs)
     } catch (err) {
         res.status(500).json({ error: err})
     }
